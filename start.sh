@@ -14,13 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-/bin/sh -c "./bin/kafka-server-start.sh config/server.properties --override broker.id=$(hostname | awk -F'-' '{print $NF}') --override zookeeper.connect={{ .Values.zookeeperServiceName }}.{{ .Values.zookeeperNamespace }}.svc.cluster.local:2181"
+/bin/sh -c "./bin/kafka-server-start.sh config/server.properties --override broker.id=$(hostname | awk -F'-' '{print $NF}') --override zookeeper.connect=$ZOO_SVC_NAME.$ZOO_NS.svc.cluster.local:2181"
 
 while true; do   
-	/bin/sh -c "./bin/kafka-topics.sh --create --zookeeper zookeeper.efk-logs.svc.cluster.local:2181 --topic $TOPIC_TAG --replication-factor 3 --partitions 10"
+	/bin/sh -c "./bin/kafka-topics.sh --create --zookeeper $ZOO_SVC_NAME.$ZOO_NS.svc.cluster.local:2181 --topic $TOPIC_TAG --replication-factor $REPLICAS --partitions 10"
     if [[ "$?" == "0" ]]; then
       break
     fi
 	echo "create topics failed.  Waiting..."
-    sleep 10
+    sleep 30
 done 
